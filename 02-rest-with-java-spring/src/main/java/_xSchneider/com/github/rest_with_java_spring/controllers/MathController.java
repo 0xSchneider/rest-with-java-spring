@@ -9,16 +9,62 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/math")
 public class MathController {
 
+    @RequestMapping("/sub/{numberOne}/{numberTwo}")
+    public Double sub(
+            @PathVariable String numberOne,
+            @PathVariable String numberTwo
+    ) throws UnsupportedMathOperationException {
+        if(!isNumeric(numberOne) || !isNumeric(numberTwo))
+            throw new UnsupportedMathOperationException("Please, set a numeric value");
+        return convertToDouble(numberOne) - convertToDouble(numberTwo);
+    }
+
     @RequestMapping("/sum/{numberOne}/{numberTwo}")
     public Double sum(
             @PathVariable("numberOne") String numberOne,
             @PathVariable("numberTwo") String numberTwo
-    ) throws Exception {
+    ) throws UnsupportedMathOperationException {
         if(!isNumeric(numberOne) || !isNumeric(numberTwo) )
             throw new UnsupportedMathOperationException("Please, set a numeric value");
         return convertToDouble(numberOne) + convertToDouble(numberTwo);
 
 
+    }
+
+    @RequestMapping("/mult/{numberOne}/{numberTwo}")
+    public Double mult(
+            @PathVariable("numberOne") String numberOne,
+            @PathVariable("numberTwo") String numberTwo
+    )  throws UnsupportedMathOperationException {
+        if(!isNumeric(numberOne) || !isNumeric(numberTwo)) throw new UnsupportedMathOperationException("Please, set a numeric value");
+        return convertToDouble(numberOne) * convertToDouble(numberTwo);
+    }
+
+    @RequestMapping("/div/{numberOne}/{numberTwo}")
+    public Double div(
+            @PathVariable("numberOne") String numberOne,
+            @PathVariable("numberTwo") String numberTwo
+    )  throws UnsupportedMathOperationException {
+        if(!isNumeric(numberOne) || !isNumeric(numberTwo)) throw new UnsupportedMathOperationException("Please, set a numeric value");
+        if(convertToDouble(numberTwo)==0) throw new UnsupportedMathOperationException("Number two cannot be zero");
+        return convertToDouble(numberOne) / convertToDouble(numberTwo);
+    }
+
+    @RequestMapping("/med/{numberOne}/{numberTwo}")
+    public Double median(
+            @PathVariable("numberOne") String numberOne,
+            @PathVariable("numberTwo") String numberTwo
+    ) throws UnsupportedMathOperationException {
+        if(!isNumeric(numberOne) || !isNumeric(numberTwo)) throw  new UnsupportedMathOperationException("Please, set a numeric value");
+        return (convertToDouble(numberOne)+convertToDouble(numberTwo))/2;
+    }
+
+    @RequestMapping("/quad/{numberOne}")
+    public double quad(
+            @PathVariable("numberOne") String numberOne
+    ) throws UnsupportedMathOperationException {
+        if(!isNumeric(numberOne)) throw   new UnsupportedMathOperationException("Please, set a numeric value");
+        return Math.sqrt(convertToDouble(numberOne));
     }
 
     private Double convertToDouble(String strNumber) throws IllegalArgumentException {
@@ -33,4 +79,5 @@ public class MathController {
         String number = strNumber.replace(",",".");
         return (number.matches("[-+]?[0-9]*\\.?[0-9]+"));
     }
+
 }
