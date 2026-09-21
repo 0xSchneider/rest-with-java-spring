@@ -1,14 +1,18 @@
 package _xSchneider.com.github.rest_with_java_spring.Services;
 
+import _xSchneider.com.github.rest_with_java_spring.dataDTO.PersonDTO;
+import _xSchneider.com.github.rest_with_java_spring.exception.ResourceNotFoundException;
+import static _xSchneider.com.github.rest_with_java_spring.mapper.ObjectMapper.parseListObjects;
+import static _xSchneider.com.github.rest_with_java_spring.mapper.ObjectMapper.parseObject;
 import _xSchneider.com.github.rest_with_java_spring.model.Person;
 import _xSchneider.com.github.rest_with_java_spring.repository.PersonRepository;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 @Service
 public class PersonServices {
@@ -18,53 +22,48 @@ public class PersonServices {
     @Autowired
     PersonRepository repository;
 
-    private Logger logger = Logger.getLogger(PersonServices.class.getName());
+    private Logger logger = LoggerFactory.getLogger(PersonServices.class.getName());
 
-    public List<Person> findAll() {
-    List<Person> persons = new ArrayList<Person>();
-        for (int i = 0; i < 8; i++) {
-            Person person = mockPerson(i);
-            persons.add(person);
-        }
-        return persons;
+    public List<PersonDTO> findAll() {
+
+        logger.info("Finding all persons");
+        return parseListObjects(repository.findAll(), PersonDTO.class);
 
     }
 
-    private Person mockPerson(int i) {
-        Person person = new Person();
-        person.setId(counter.incrementAndGet());
-        person.setFirstName("FirstName "+ i);
-        person.setLastName("LasName "+ i);
-        person.setAddress("Address "+ i);
-        person.setGender("M");
-        return person;
-    }
-
-
-    public Person findById(String id) {
+    public PersonDTO findById(Long id) {
         logger.info("Finding one Person!");
 
-        Person person = new Person();
-        person.setId(counter.incrementAndGet());
-        person.setFirstName("Eduardo");
-        person.setLastName("Schneider");
-        person.setAddress("Ev");
-        person.setGender("M");
-        return person;
+        var entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("no records found"));
+
+        return parseObject(entity, PersonDTO.class);
     }
 
-    public Person create(Person person) {
+    public PersonDTO create(PersonDTO person) {
         logger.info("Creating person with id " + person.getId());
-        return person;
+        var entity = parseObject(person, Person.class);
+
+        return parseObject(repository.save(entity), PersonDTO.class);
     }
 
-    public void delete(String id) {
+    public void delete(Long id) {
         logger.info("Deleting person");
+
+        Person entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("no records found"));
+        repository.deleteById(id);
     }
 
-    public Person update(Person person) {
+    public PersonDTO update(PersonDTO person) {
 
         logger.info("Updating person");
-        return person;
+        Person entity = repository.findById(person.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("no records found"));
+        entity.setFirstName(person.getFirstName());
+        entity.setLastName(person.getLastName());
+        entity.setAddress(person.getAddress());
+        entity.setGender(person.getGender());
+        return parseObject(repository.save(entity), PersonDTO.class);
+
     }
 }

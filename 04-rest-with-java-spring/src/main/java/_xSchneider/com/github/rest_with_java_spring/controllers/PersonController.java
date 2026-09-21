@@ -1,9 +1,11 @@
 package _xSchneider.com.github.rest_with_java_spring.controllers;
 
 import _xSchneider.com.github.rest_with_java_spring.Services.PersonServices;
+import _xSchneider.com.github.rest_with_java_spring.dataDTO.PersonDTO;
 import _xSchneider.com.github.rest_with_java_spring.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,48 +19,42 @@ public class PersonController {
     @Autowired
     private PersonServices service;
 
-    @RequestMapping(value = "/{id}",
-        method = RequestMethod.GET,
+    @GetMapping(value = "/{id}",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Person findById(@PathVariable("id") String id) {
+    public PersonDTO findById(@PathVariable("id") Long id) {
         return service.findById(id);
 
     }
-
-
-    @RequestMapping(
-        method = RequestMethod.GET,
+    
+    @GetMapping(
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<Person> findAll() {
+    public List<PersonDTO> findAll() {
         return service.findAll();
     }
 
 
-    @RequestMapping(
-            method = RequestMethod.POST,
+    @PostMapping(
             consumes =  MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Person create(@RequestBody Person person){
+    public PersonDTO create(@RequestBody PersonDTO person){
         return service.create(person);
     }
 
-    @RequestMapping(value = "/{id}",
-            method = RequestMethod.DELETE
+    @DeleteMapping(value = "/{id}"
     )
-    public void delete(@PathVariable String id){
-
-    service.delete(id);
+    public ResponseEntity<?> delete(@PathVariable("id") Long id){
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(
-            method = RequestMethod.PUT,
+    @PutMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Person update(@RequestBody Person person){
+    public PersonDTO update(@RequestBody PersonDTO person){
         return service.update(person);
     }
 }
